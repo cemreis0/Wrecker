@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="GroundStation.MainPage">
+
+    <Grid RowDefinitions="*, 1*, 2*" ColumnDefinitions="*, 3*">
+        <BoxView Grid.Row="0" Grid.Column="2" BackgroundColor="Gray" Margin="10" />
+
+        <BoxView Grid.Row="0" Grid.Column="1" BackgroundColor="LightBlue" Margin="10" />
+
+        <StackLayout Grid.Row="2" Grid.Column="2" BackgroundColor="LightGreen" Margin="10">
+            <Label Text="Roll: 0" />
+            <Label Text="Pitch: 0" />
+            <Label Text="Yaw: 0" />
+            <Label Text="Paraşüt: Kapalı" />
+        </StackLayout>
+
+        <ScrollView Grid.Row="2" Grid.Column="0" BackgroundColor="LightGray" Margin="10">
+            <Label x:Name="LogLabel" Text="Mesajlar burada görünecek..." />
+        </ScrollView>
+
+        <Image Grid.Row="1" Grid.Column="1" Source="logo.png" HorizontalOptions="Center" VerticalOptions="Center" />
+    </Grid>
+</ContentPage>
