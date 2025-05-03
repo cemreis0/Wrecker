@@ -1,28 +1,24 @@
-﻿using Core.Enums;
-using Core.Models;
+﻿using Core.Models;
 using Core.Services;
 using System.IO.Ports;
+using System.Collections.Concurrent;
 
 namespace Service.Services
 {
     public class AvionicsSerialCommunicationService : IAvionicsSerialCommunicationService
     {
         private readonly SerialPort _serialPort;
-        private readonly Queue<byte> _serialDataQueue;
-        private readonly object _serialDataLock;
-        private bool _isProcessingSerialDataQueue;
+        private readonly ConcurrentQueue<byte> _serialDataQueue;
 
         private const int serialQueueProcessSizeMax = 50;
         private const int rawDataSizeMin = 100;
 
-        public event EventHandler<AvionicsBase>? AvionicsMessageReceived;
+        public event EventHandler? AvionicsMessageReadyForProcess;
 
         public AvionicsSerialCommunicationService()
         {
             _serialPort = new SerialPort();
-            _serialDataQueue = new();
-            _serialDataLock = new();
-            _isProcessingSerialDataQueue = false;
+            _serialDataQueue = new ConcurrentQueue<byte>();
 
             _serialPort.DataReceived += OnAvionicsMessageReceived;
         }
@@ -57,53 +53,34 @@ namespace Service.Services
             while (_serialPort.BytesToRead > 0)
             {
                 byte b = (byte)_serialPort.ReadByte();
-                lock (_serialDataLock)
-                {
-                    _serialDataQueue.Enqueue(b);
-                }
+                _serialDataQueue.Enqueue(b);
             }
 
-            if (!_isProcessingSerialDataQueue && _serialDataQueue.Count >= rawDataSizeMin)
+            if (_serialDataQueue.Count >= rawDataSizeMin)
             {
-                _isProcessingSerialDataQueue = true;
-                Task.Run(ProcessSerialQueue);
+                AvionicsMessageReadyForProcess?.Invoke(this, EventArgs.Empty);
             }
         }
 
-        public async Task ProcessSerialQueue()
+        public async Task<AvionicsBase>? ProcessSerialQueue()
         {
-            try
+            List<byte> rawDataList = [];
+
+            while (_serialDataQueue.TryDequeue(out byte data))
             {
-                List<byte> rawDataList = [];
+                rawDataList.Add(data);
 
-                while (true)
+                if (rawDataList.Count >= serialQueueProcessSizeMax)
                 {
-                    lock (_serialDataLock)
-                    {
-                        while (_serialDataQueue.Count > 0 && rawDataList.Count < serialQueueProcessSizeMax)
-                        {
-                            rawDataList.Add(_serialDataQueue.Dequeue());
-                        }
-                    }
-
-                    if (rawDataList.Count == 0)
-                    {
-                        await Task.Delay(50);
-                        continue;
-                    }
-
-                    AvionicsBase avionicsMessage = ConvertRawAvionicsMessage(rawDataList);
-
-                    if (avionicsMessage != null && avionicsMessage.Header != '\0')
-                    {
-                        AvionicsMessageReceived?.Invoke(this, avionicsMessage);
-                    }
+                    break;
                 }
             }
-            finally
-            {
-                _isProcessingSerialDataQueue = false;
-            }
+
+            AvionicsBase avionicsMessage = ConvertRawAvionicsMessage(rawDataList);
+
+            rawDataList.Clear();
+
+            return avionicsMessage;
         }
 
         private AvionicsBase ConvertRawAvionicsMessage(List<byte> rawDataList)

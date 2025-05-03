@@ -19,7 +19,6 @@ namespace GroundConsole.Configuration
                     options.SingleLine = true;
                 }))
                 .AddSingleton<IMessageSourceService, MessageSourceService>()
-                .AddSingleton<ILogger, Logger<AvionicsSerialCommunicationService>>()
                 .AddSingleton<IAvionicsSerialCommunicationService, AvionicsSerialCommunicationService>()
                 .BuildServiceProvider();
         }

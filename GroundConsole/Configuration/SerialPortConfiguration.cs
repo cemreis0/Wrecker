@@ -13,6 +13,14 @@ namespace GroundConsole.Configuration
 
         public static SerialPortConfig GetConfigurationFromUser()
         {
+            Console.WriteLine("==================================================\n");
+            Console.WriteLine("     Wrecker Flight Controller Systems            \n");
+            Console.WriteLine("     (c) 2025                                     \n");
+            Console.WriteLine("==================================================\n");
+
+            Console.WriteLine("Devam etmek için herhangi bir tuşa basın...");
+            Console.ReadKey(true);
+
             var config = new SerialPortConfig();
 
             config.PortName = GetPortName();
