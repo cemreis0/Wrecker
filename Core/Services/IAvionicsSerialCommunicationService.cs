@@ -7,8 +7,8 @@ namespace Core.Services
     {
         event EventHandler<AvionicsBase> AvionicsMessageReceived;
 
-        bool Connect(string portName, int baudRate, StopBits stopBits, Parity parityBits, int readTimeout, int writeTimeout);
-        bool Disconnect();
+        void Connect(string portName, int baudRate, StopBits stopBits, Parity parityBits, int readTimeout, int writeTimeout);
+        void Disconnect();
         Task ProcessSerialQueue();
     }
 }
