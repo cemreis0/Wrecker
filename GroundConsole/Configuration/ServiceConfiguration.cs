@@ -1,8 +1,8 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using Service.Services;
-using Core.Services;
+﻿using Core.Services;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Console;
+using Service.Services;
 
 namespace GroundConsole.Configuration
 {

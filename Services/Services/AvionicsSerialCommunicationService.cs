@@ -1,7 +1,7 @@
 ﻿using Core.Models;
 using Core.Services;
-using System.IO.Ports;
 using System.Collections.Concurrent;
+using System.IO.Ports;
 
 namespace Service.Services
 {

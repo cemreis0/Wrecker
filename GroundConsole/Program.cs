@@ -1,12 +1,10 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using Core.Services;
-using System.IO.Ports;
-using Service.Services;
-using Microsoft.Extensions.Logging;
-using Core.Enums;
-using GroundConsole.Configuration;
-using System.Threading;
+﻿using Core.Enums;
 using Core.Models;
+using Core.Services;
+using GroundConsole.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Service.Services;
 
 namespace GroundConsole
 {
@@ -54,12 +52,12 @@ namespace GroundConsole
                     }
                     else
                     {
-                        logger.LogWarning($"[{groundMessageSource}] Bilinmeyen mesaj: {message}");
+                        // logger.LogWarning($"[{groundMessageSource}] Bilinmeyen mesaj: {message}");
                     }
                 }
                 catch (Exception ex)
                 {
-                    logger.LogError($"[{groundMessageSource}] Veri işlenirken hata: {ex.Message}");
+                    // logger.LogError($"[{groundMessageSource}] Veri işlenirken hata: {ex.Message}");
                 }
             };
 

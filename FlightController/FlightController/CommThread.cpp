@@ -22,7 +22,7 @@ void CommThread::setup() {
 
     // Initialize E32
     while (!e32) {
-      e32.begin(115200);
+      e32.begin(9600);
     }   
     uartMessageHandler.info("E32 UART communication established");
     sdLogHandler.info("E32 UART communication established");
