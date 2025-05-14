@@ -18,6 +18,8 @@ const char* i2cStatusMessage = "I2C bus not initialized"; // Wire connection for
 // Define shared recovery flags
 bool isRecoveryConditionsMet = false;
 bool isRecoverySignalSent = false;
+bool isRecoveryConditionsMet2 = false;
+bool isRecoverySignalSent2 = false;
 
 // Define LED pin that is used to indicate setup stage
 const int ledPin = 25; // LED pin on Pico

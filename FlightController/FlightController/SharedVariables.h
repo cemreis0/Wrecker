@@ -27,6 +27,8 @@ extern const char* i2cStatusMessage;  // Wire connection for BNO055 + BMP280
 // Declare shared recovery flags
 extern bool isRecoveryConditionsMet;
 extern bool isRecoverySignalSent;
+extern bool isRecoveryConditionsMet2;
+extern bool isRecoverySignalSent2;
 
 // Declare LED pin that is used to indicate setup stage
 extern const int ledPin;

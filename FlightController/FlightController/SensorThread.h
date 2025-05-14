@@ -39,6 +39,7 @@ extern unsigned long previous_time;
 
 // Declare pin for recovery system
 extern const int recoveryPin;
+extern const int recoveryPin2;
 
 class SensorThread : public Arduino_Threads {
     protected:

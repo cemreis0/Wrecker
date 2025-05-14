@@ -11,6 +11,8 @@ const int sdChipSelect = 17;
 // Initialize flags to track if logging has been done
 bool hasLoggedRecoveryConditions = false;
 bool hasLoggedRecoverySignal = false;
+bool hasLoggedRecoveryConditions2 = false;
+bool hasLoggedRecoverySignal2 = false;
 
 void CommThread::setup() {
     // Set recovery pin to low on initialization and its pin mode to output
@@ -90,6 +92,22 @@ void CommThread::loop() {
       uartMessageHandler.info("Recovery signal sent");
       sdLogHandler.info("Recovery signal sent");
       hasLoggedRecoverySignal = true; // Prevent further logging
+      delay(50);
+    }
+
+    // Log the recovery condition once when it is met 2
+    if (isRecoveryConditionsMet && !hasLoggedRecoveryConditions) {
+      uartMessageHandler.info("Recovery conditions met 2");
+      sdLogHandler.info("Recovery conditions met 2");
+      hasLoggedRecoveryConditions2 = true; // Prevent further logging
+      delay(50);
+    }
+
+    // Log the recovery signal once when it is sent 2
+    if (isRecoverySignalSent && !hasLoggedRecoverySignal) {
+      uartMessageHandler.info("Recovery signal sent 2");
+      sdLogHandler.info("Recovery signal sent 2");
+      hasLoggedRecoverySignal2 = true; // Prevent further logging
       delay(50);
     }
 

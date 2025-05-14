@@ -16,6 +16,7 @@ unsigned long previous_time = 0;
 
 // Define pin for recovery
 const int recoveryPin = 22; // Pin for recovery system
+const int recoveryPin2 = 21; // Pin for recovery system 2
 
 // Get BNO055 status and update the status variable
 const char* getBNO055Status(BNO055::eStatus_t eStatus) {
@@ -159,7 +160,7 @@ void SensorThread::loop() {
 
     // Check if recovery conditions are satisfied and recovery signal has not been sent
     if (!isRecoverySignalSent) {
-        if(sEulAnalog.pitch < -90 || sEulAnalog.pitch > 90) {
+        if(sEulAnalog.pitch < -90 || sEulAnalog.pitch > 90 && sharedSensorData.velocity < 0.50) {
             // Recovery conditions are met
             isRecoveryConditionsMet = true;
 
@@ -177,6 +178,26 @@ void SensorThread::loop() {
             // Never run this block again
             isRecoverySignalSent = true;
         }
+    }
+
+    // Check if recovery conditions are satisfied and recovery signal has not been sent
+    if (!isRecoverySignalSent2) {
+        // Recovery conditions are met 2
+        if (sharedSensorData.altitude < 550)
+
+            // Set the pins high
+            digitalWrite(ledPin, HIGH);
+            digitalWrite(recoveryPin2, HIGH);
+
+            // Apply the signal for a second
+            delay(DELAY_ONE_SECOND);
+
+            // Set the pins low
+            digitalWrite(recoveryPin2, LOW);
+            digitalWrite(ledPin, LOW);
+
+            // Never run this block again
+            isRecoverySignalSent2 = true;
     }
     
     delay(DELAY_DEFAULT_SENSOR);

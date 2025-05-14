@@ -5,67 +5,71 @@ using GroundConsole.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Service.Services;
+using System;
+using System.IO.Ports;
 
 namespace GroundConsole
 {
     class Program
     {
-        static async Task Main()
+        static void Main(string[] args)
         {
-            var serviceProvider = ServiceConfiguration.ConfigureServices();
+            // Set up serial port configuration
+            SerialPort serialPort = new SerialPort();
 
-            var avionicsSerialCommunicationService = serviceProvider.GetRequiredService<IAvionicsSerialCommunicationService>();
-            var messageSourceService = serviceProvider.GetRequiredService<IMessageSourceService>();
-            var logger = serviceProvider.GetRequiredService<ILogger<AvionicsSerialCommunicationService>>();
+            // Change these values according to your setup
+            serialPort.PortName = "COM9"; // e.g., "COM3" on Windows or "/dev/ttyUSB0" on Linux
+            serialPort.BaudRate = 9600;
+            serialPort.Parity = Parity.None;
+            serialPort.DataBits = 8;
+            serialPort.StopBits = StopBits.One;
+            serialPort.Handshake = Handshake.None;
+            serialPort.ReadTimeout = 500; // in milliseconds
+            serialPort.WriteTimeout = 500;
 
-            var groundMessageSource = messageSourceService.GetMessageSource(MessageSource.GroundStation);
-            var avionicsMessageSource = messageSourceService.GetMessageSource(MessageSource.Avionics);
+            // Event handler for data received
+            serialPort.DataReceived += new SerialDataReceivedEventHandler(DataReceivedHandler);
 
-            var appConfig = SerialPortConfig.GetConfigurationFromUser();
-
-            avionicsSerialCommunicationService.Connect(
-                appConfig.PortName,
-                appConfig.BaudRate,
-                appConfig.StopBits,
-                appConfig.ParityBits,
-                appConfig.ReadTimeout,
-                appConfig.WriteTimeout
-            );
-
-            avionicsSerialCommunicationService.AvionicsMessageReadyForProcess += (sender, e) =>
+            try
             {
-                try
+                serialPort.Open();
+                Console.WriteLine("Listening on " + serialPort.PortName + "...");
+                Console.WriteLine("Press Ctrl+C to exit.");
+
+                // Keep the program running and listening indefinitely
+                while (true)
                 {
-                    var message = avionicsSerialCommunicationService.ProcessSerialQueue().Result;
-
-                    if (message is AvionicsData avionicsData)
-                    {
-                        logger.LogInformation($"[{avionicsMessageSource}] [VER] {avionicsData}");
-                    }
-                    else if (message is AvionicsInfo avionicsInfo)
-                    {
-                        logger.LogInformation($"[{avionicsMessageSource}] [ENF] {avionicsInfo}");
-                    }
-                    else if (message is AvionicsError avionicsError)
-                    {
-                        logger.LogError($"[{avionicsMessageSource}] [HAT] {avionicsError}");
-                    }
-                    else
-                    {
-                        // logger.LogWarning($"[{groundMessageSource}] Bilinmeyen mesaj: {message}");
-                    }
+                    // This ensures the program keeps running
+                    // without blocking or exiting.
+                    System.Threading.Thread.Sleep(1000);
                 }
-                catch (Exception ex)
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error opening serial port: " + ex.Message);
+            }
+            finally
+            {
+                if (serialPort.IsOpen)
                 {
-                    // logger.LogError($"[{groundMessageSource}] Veri işlenirken hata: {ex.Message}");
+                    serialPort.Close();
+                    Console.WriteLine("Serial port closed.");
                 }
-            };
+            }
+        }
 
-            logger.LogInformation("Çıkmak için 'q' tuşuna basın...");
-            while (Console.ReadKey(true).Key != ConsoleKey.Q) { }
-
-            avionicsSerialCommunicationService.Disconnect();
-            logger.LogInformation($"{appConfig.PortName} port bağlantısı kesildi.");
+        private static void DataReceivedHandler(object sender, SerialDataReceivedEventArgs e)
+        {
+            SerialPort sp = (SerialPort)sender;
+            try
+            {
+                string data = sp.ReadExisting();
+                Console.Write(data); // Print data without adding extra newline
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error reading from serial port: " + ex.Message);
+            }
         }
     }
 }
